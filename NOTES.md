@@ -26,12 +26,9 @@
 ### Text Formatting
 - [x] Inline LaTeX rendering ($...$ and $$...$$) via KaTeX
 - [x] Bold/italic (**text**, *text*) with Cmd+B/I shortcuts
+- [x] Bullet lists (- item) and numbered lists (1. item)
 
 ## TODO
-
-### Phase 2 - Text Enhancements (continued)
-- [ ] Bullets / numbered lists
-- [ ] Inline code formatting
 
 ### Phase 3 - Persistence
 - [ ] Redis/Postgres integration for CRDT snapshots
@@ -44,6 +41,7 @@
 - [ ] Better mobile/iPad touch handling
 
 ### Future
+- [ ] Inline code formatting
 - [ ] Shift+arrow formatting shortcuts
 - [ ] Auto-wrap text around drawings
 - [ ] Multiple pages per document

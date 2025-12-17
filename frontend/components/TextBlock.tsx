@@ -29,6 +29,7 @@ export default function TextBlockComponent({
   const [isDragging, setIsDragging] = useState(false);
   const [isEditing, setIsEditing] = useState(block.content === '');
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const hasMoved = useRef(false); // Track if actual movement happened
 
   // Focus textarea when editing starts
   useEffect(() => {
@@ -96,6 +97,7 @@ export default function TextBlockComponent({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
     });
+    hasMoved.current = false; // Reset movement tracking
     setIsDragging(true);
   }, [isEditing]);
 
@@ -104,6 +106,8 @@ export default function TextBlockComponent({
     if (!isDragging) return;
 
     const handleMouseMove = (e: MouseEvent) => {
+      hasMoved.current = true; // Mark that actual movement happened
+
       const parent = containerRef.current?.parentElement;
       if (!parent) return;
 
@@ -137,10 +141,11 @@ export default function TextBlockComponent({
   // Handle click to edit
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isDragging) {
+    // Only enter edit mode if no actual movement happened (it was a click, not a drag)
+    if (!hasMoved.current) {
       setIsEditing(true);
     }
-  }, [isDragging]);
+  }, []);
 
   // Handle blur to stop editing
   const handleBlur = useCallback(() => {
@@ -229,7 +234,10 @@ export default function TextBlockComponent({
           }}
         >
           {block.content ? (
-            <div dangerouslySetInnerHTML={{ __html: renderContent(block.content) }} />
+            <div
+              dangerouslySetInnerHTML={{ __html: renderContent(block.content) }}
+              style={{ pointerEvents: 'none' }}
+            />
           ) : (
             <span className="text-gray-400">Type here...</span>
           )}
