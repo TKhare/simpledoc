@@ -1,17 +1,23 @@
-I want to create a webapp called simpledoc.com for real-time, low-friction mixed notes: typed text + handwritten ink, designed to be used simultaneously on a laptop and an iPad.
+# SimpleDoc
 
-Problem: People choose between either typed notes or handwritten notes. There is a significant tradeoff between choosing typed notes on a computer (high throughput) vs handwritten notes on an ipad (no forced structure, better for math, diagramming, etc).
+Real-time collaborative notes combining typed text and handwritten ink. Open the same room on your laptop and iPad—everything syncs instantly.
 
-So, the core use case is to have a website (simpledoc.com) where users can enter a room code (arbitrary, they can also generate one, e.g. WDQG). No accounts for MVP; anyone with the code can access the doc
+## Quick Start
 
-Then, they open the same doc/session on both their computer and iPad at simpledoc.com/WDQG. Anything typed or drawn on one device appears on the other device near instantly.
-- “Instant sync” should feel realtime. Target <1000ms propagation on good Wi-Fi (and still smooth under mediocre networks). Use websockets / realtime sync; don’t rely on periodic polling.
-- Formatting features for low-friction, that allow users to make their notes beautiful:
-    - Shift + right -> start typing in text box formatted right of last drawing section
-    - Shift + down -> start typing in text box formatted below last drawing section
-    - Option for text boxes to automatically wrap all drawn sections
-- Editing model is a blank 8.5 x 11 inch page with two object types:
-    - ink strokes (Apple pencil/pointer)
-    - text blocks
-- Planning to use a CRDT-based document model (e.g., Yjs) so concurrent edits converge without manual conflict resolution. Ink strokes should be append-only CRDT elements; text blocks should use CRDT text. If you can think of a better option, let me know.
+```bash
+# Terminal 1 - WebSocket server
+cd server && npm install && npm run dev
 
+# Terminal 2 - Frontend
+cd frontend && npm install && npm run dev
+```
+
+Open http://localhost:3000
+
+## Status
+
+**Working:** Room codes, real-time drawing, text blocks, color/width picker, multi-device sync.
+
+**Not yet:** Persistence (docs lost on server restart), LaTeX, text formatting.
+
+See [NOTES.md](./NOTES.md) for roadmap, [DESIGN.md](./DESIGN.md) for technical decisions.

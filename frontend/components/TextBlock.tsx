@@ -9,6 +9,7 @@ interface TextBlockProps {
   pageHeight: number;
   onChange: (content: string) => void;
   onMove: (x: number, y: number) => void;
+  onResize: (width: number, height: number) => void;
   onDelete: () => void;
 }
 
@@ -18,6 +19,7 @@ export default function TextBlockComponent({
   pageHeight,
   onChange,
   onMove,
+  onResize,
   onDelete,
 }: TextBlockProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -33,9 +35,30 @@ export default function TextBlockComponent({
     }
   }, [isEditing]);
 
-  // Calculate position as percentage for responsive layout
+  // Capture size when editing ends
+  const captureSize = useCallback(() => {
+    const textarea = textareaRef.current;
+    const parent = containerRef.current?.parentElement;
+    if (!textarea || !parent) return;
+
+    const parentRect = parent.getBoundingClientRect();
+    const scaleX = pageWidth / parentRect.width;
+    const scaleY = pageHeight / parentRect.height;
+
+    const newWidth = textarea.offsetWidth * scaleX;
+    const newHeight = textarea.offsetHeight * scaleY;
+
+    // Only update if changed
+    if (Math.abs(newWidth - block.width) > 5 || Math.abs(newHeight - block.height) > 5) {
+      onResize(newWidth, newHeight);
+    }
+  }, [pageWidth, pageHeight, block.width, block.height, onResize]);
+
+  // Calculate position and size as percentage for responsive layout
   const leftPercent = (block.x / pageWidth) * 100;
   const topPercent = (block.y / pageHeight) * 100;
+  const widthPercent = (block.width / pageWidth) * 100;
+  const heightPercent = (block.height / pageHeight) * 100;
 
   // Handle drag start
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -100,22 +123,41 @@ export default function TextBlockComponent({
 
   // Handle blur to stop editing
   const handleBlur = useCallback(() => {
+    captureSize(); // Save size before exiting edit mode
     setIsEditing(false);
     // Delete empty blocks
     if (!block.content.trim()) {
       onDelete();
     }
-  }, [block.content, onDelete]);
+  }, [block.content, onDelete, captureSize]);
 
   // Handle key down
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
+      captureSize();
       setIsEditing(false);
       if (!block.content.trim()) {
         onDelete();
       }
     }
-  }, [block.content, onDelete]);
+  }, [block.content, onDelete, captureSize]);
+
+  // Calculate pixel dimensions based on parent scale
+  const getScaledDimensions = useCallback(() => {
+    const parent = containerRef.current?.parentElement;
+    if (!parent) return { width: block.width, height: block.height };
+
+    const parentRect = parent.getBoundingClientRect();
+    const scaleX = parentRect.width / pageWidth;
+    const scaleY = parentRect.height / pageHeight;
+
+    return {
+      width: block.width * scaleX,
+      height: block.height * scaleY,
+    };
+  }, [block.width, block.height, pageWidth, pageHeight]);
+
+  const scaledDimensions = getScaledDimensions();
 
   return (
     <div
@@ -124,7 +166,6 @@ export default function TextBlockComponent({
       style={{
         left: `${leftPercent}%`,
         top: `${topPercent}%`,
-        minWidth: '50px',
       }}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
@@ -136,15 +177,22 @@ export default function TextBlockComponent({
           onChange={(e) => onChange(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className="min-w-[100px] min-h-[24px] p-1 text-sm bg-blue-50 border border-blue-300 rounded outline-none resize-both"
-          style={{ cursor: 'text' }}
+          className="p-1 text-sm bg-blue-50 border border-blue-300 rounded outline-none resize"
+          style={{
+            cursor: 'text',
+            width: Math.max(100, scaledDimensions.width),
+            height: Math.max(40, scaledDimensions.height),
+          }}
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
         />
       ) : (
         <div
           className="p-1 text-sm whitespace-pre-wrap rounded hover:bg-gray-100 group-hover:ring-1 group-hover:ring-gray-300"
-          style={{ minHeight: '24px' }}
+          style={{
+            width: Math.max(50, scaledDimensions.width),
+            minHeight: '24px',
+          }}
         >
           {block.content || <span className="text-gray-400">Type here...</span>}
         </div>

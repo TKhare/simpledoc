@@ -150,6 +150,14 @@ export default function Canvas({ provider, color, strokeWidth }: CanvasProps) {
     }
   }, [provider.textBlocks]);
 
+  // Update text block size
+  const handleTextBlockResize = useCallback((id: string, width: number, height: number) => {
+    const block = provider.textBlocks.get(id);
+    if (block) {
+      provider.textBlocks.set(id, { ...block, width, height });
+    }
+  }, [provider.textBlocks]);
+
   // Delete text block
   const handleTextBlockDelete = useCallback((id: string) => {
     provider.textBlocks.delete(id);
@@ -210,6 +218,7 @@ export default function Canvas({ provider, color, strokeWidth }: CanvasProps) {
           pageHeight={PAGE_HEIGHT}
           onChange={(content) => handleTextBlockChange(block.id, content)}
           onMove={(x, y) => handleTextBlockMove(block.id, x, y)}
+          onResize={(w, h) => handleTextBlockResize(block.id, w, h)}
           onDelete={() => handleTextBlockDelete(block.id)}
         />
       ))}
