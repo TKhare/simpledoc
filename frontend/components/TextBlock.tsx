@@ -2,6 +2,8 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import type { TextBlock } from '@/lib/types';
+import { renderContent } from '@/lib/formatting';
+import 'katex/dist/katex.min.css';
 
 interface TextBlockProps {
   block: TextBlock;
@@ -53,6 +55,25 @@ export default function TextBlockComponent({
       onResize(newWidth, newHeight);
     }
   }, [pageWidth, pageHeight, block.width, block.height, onResize]);
+
+  // Wrap selected text with formatting markers (for Cmd+B/I)
+  const wrapSelection = useCallback((marker: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+
+    const newText = text.slice(0, start) + marker + text.slice(start, end) + marker + text.slice(end);
+    onChange(newText);
+
+    // Restore cursor position after the wrapped text
+    setTimeout(() => {
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = end + marker.length * 2;
+    }, 0);
+  }, [onChange]);
 
   // Calculate position and size as percentage for responsive layout
   const leftPercent = (block.x / pageWidth) * 100;
@@ -133,6 +154,19 @@ export default function TextBlockComponent({
 
   // Handle key down
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // Cmd/Ctrl + B for bold
+    if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+      e.preventDefault();
+      wrapSelection('**');
+      return;
+    }
+    // Cmd/Ctrl + I for italic
+    if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
+      e.preventDefault();
+      wrapSelection('*');
+      return;
+    }
+    // Escape to exit editing
     if (e.key === 'Escape') {
       captureSize();
       setIsEditing(false);
@@ -140,7 +174,7 @@ export default function TextBlockComponent({
         onDelete();
       }
     }
-  }, [block.content, onDelete, captureSize]);
+  }, [block.content, onDelete, captureSize, wrapSelection]);
 
   // Calculate pixel dimensions based on parent scale
   const getScaledDimensions = useCallback(() => {
@@ -188,13 +222,17 @@ export default function TextBlockComponent({
         />
       ) : (
         <div
-          className="p-1 text-sm whitespace-pre-wrap rounded hover:bg-gray-100 group-hover:ring-1 group-hover:ring-gray-300"
+          className="p-1 text-sm rounded hover:bg-gray-100 group-hover:ring-1 group-hover:ring-gray-300"
           style={{
             width: Math.max(50, scaledDimensions.width),
             minHeight: '24px',
           }}
         >
-          {block.content || <span className="text-gray-400">Type here...</span>}
+          {block.content ? (
+            <div dangerouslySetInnerHTML={{ __html: renderContent(block.content) }} />
+          ) : (
+            <span className="text-gray-400">Type here...</span>
+          )}
         </div>
       )}
     </div>

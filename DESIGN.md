@@ -39,3 +39,17 @@
 **Dimensions:** 816 x 1056 px (8.5" x 11" at 96 DPI)
 
 **Coordinate system:** All positions/sizes stored in page coordinates. Percentages used for positioning (responsive), pixels calculated at render time for sizing.
+
+---
+
+## Text Formatting
+
+**Approach:** Render on blur (plain textarea for editing, formatted HTML for display)
+
+**Why not live preview?** Adds complexity (rich text editor library). Render-on-blur keeps it simple—just regex parsing.
+
+**Data model unchanged:** Content is plain string with markdown-like markers (`**bold**`, `*italic*`, `$latex$`). No rich text data structure.
+
+**LaTeX:** KaTeX (~100KB, faster than MathJax). `$...$` for inline, `$$...$$` for block.
+
+**Shortcuts:** Cmd+B wraps selection in `**`, Cmd+I wraps in `*`.

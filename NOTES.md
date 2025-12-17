@@ -23,11 +23,13 @@
 - [x] Connection status indicator
 - [x] 8.5 x 11 inch page canvas
 
+### Text Formatting
+- [x] Inline LaTeX rendering ($...$ and $$...$$) via KaTeX
+- [x] Bold/italic (**text**, *text*) with Cmd+B/I shortcuts
+
 ## TODO
 
-### Phase 2 - Text Enhancements
-- [ ] Inline LaTeX rendering ($...$ and $$...$$)
-- [ ] Bold/italic shortcuts (Cmd+B, Cmd+I)
+### Phase 2 - Text Enhancements (continued)
 - [ ] Bullets / numbered lists
 - [ ] Inline code formatting
 
