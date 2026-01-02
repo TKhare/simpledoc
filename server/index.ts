@@ -8,7 +8,7 @@ const PORT = parseInt(process.env.PORT || '1234');
 // TODO: Add Redis persistence
 const docs = new Map<string, Y.Doc>();
 
-const wss = new WebSocketServer({ port: PORT });
+const wss = new WebSocketServer({ host: '0.0.0.0', port: PORT });
 
 wss.on('connection', (ws, req) => {
   // Extract room code from URL path (e.g., /WDQG -> WDQG)

@@ -20,8 +20,6 @@
 
 **Click vs drag:** Use `hasMoved` ref to distinguish click (enter edit mode) from drag (move block). Checking `isDragging` state doesn't work because React's onClick fires before window mouseup handler resets the state.
 
-**Rendered content pointer-events:** The div with `dangerouslySetInnerHTML` (rendered markdown/LaTeX) uses `pointerEvents: 'none'` so clicks pass through to the parent container. Without this, `<ul>/<li>` elements intercept clicks and prevent entering edit mode.
-
 **Dimensions:** Stored in page coordinates (816x1056), scaled to viewport on render. This keeps data resolution-independent.
 
 **Text updates:** Direct onChange → Yjs, no debouncing. Yjs batches updates internally, so typing feels instant.
@@ -58,10 +56,4 @@
 
 **Shortcuts:** Cmd+B wraps selection in `**`, Cmd+I wraps in `*`.
 
-**Lists:** `- item` for bullets, `1. item` for numbered. Uses `-` not `*` to avoid conflict with italic syntax.
-
-**Parsing order in formatting.ts:**
-1. Block LaTeX (`$$...$$`) → replaced with placeholders (can span multiple lines)
-2. Split into lines, process lists (`- ` and `1. `)
-3. Apply inline formatting per line: escape HTML → inline LaTeX → bold → italic
-4. Restore block LaTeX placeholders
+**Lists:** `- item` for bullets, `1. item` for numbered. Uses `-` not `*` to avoid conflict with italic syntax. Block LaTeX processed first (via placeholders) since it can span lines, then line-by-line for lists.

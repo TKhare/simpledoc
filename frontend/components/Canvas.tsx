@@ -168,7 +168,6 @@ export default function Canvas({ provider, color, strokeWidth }: CanvasProps) {
       className="relative bg-white shadow-lg"
       style={{
         width: PAGE_WIDTH,
-        height: PAGE_HEIGHT,
         maxWidth: '100%',
         aspectRatio: `${PAGE_WIDTH} / ${PAGE_HEIGHT}`,
       }}
