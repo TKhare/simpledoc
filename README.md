@@ -16,8 +16,8 @@ Open http://localhost:3000
 
 ## Status
 
-**Working:** Room codes, real-time drawing, text blocks, color/width picker, multi-device sync.
+**Working:** Room codes, real-time drawing, text blocks, color/width picker, multi-device sync, LaTeX (`$...$`, `$$...$$`), text formatting (bold, italic, lists).
 
-**Not yet:** Persistence (docs lost on server restart), LaTeX, text formatting.
+**Not yet:** Persistence (docs lost on server restart).
 
 See [NOTES.md](./NOTES.md) for roadmap, [DESIGN.md](./DESIGN.md) for technical decisions.

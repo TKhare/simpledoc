@@ -24,6 +24,8 @@
 
 **Text updates:** Direct onChange → Yjs, no debouncing. Yjs batches updates internally, so typing feels instant.
 
+**Textarea auto-sizing:** When editing, textarea expands to fit content via `scrollHeight`. Uses `minHeight` (not `height`) so it can grow beyond stored block dimensions.
+
 ---
 
 ## Drawing
@@ -57,3 +59,27 @@
 **Shortcuts:** Cmd+B wraps selection in `**`, Cmd+I wraps in `*`.
 
 **Lists:** `- item` for bullets, `1. item` for numbered. Uses `-` not `*` to avoid conflict with italic syntax. Block LaTeX processed first (via placeholders) since it can span lines, then line-by-line for lists.
+
+---
+
+## Text Block Sync
+
+**Problem:** When Tab A creates a text block and types content, Tab B needs to show rendered formatting (LaTeX, etc.)—not a raw textarea.
+
+**Root cause:** `isEditing` state initializes to `true` for empty blocks. When content syncs, React doesn't automatically exit edit mode.
+
+**Solution:**
+- `autoFocus` prop from Canvas distinguishes locally-created blocks (should focus) from synced blocks (should not focus)
+- `userInitiatedEdit` ref tracks when user explicitly clicks to edit
+- Effect exits edit mode when content syncs and textarea isn't focused
+- Spread block objects (`{ ...block }`) in `updateTextBlocks` to ensure React detects prop changes
+
+---
+
+## Responsive Canvas
+
+**Container styling:** `width: PAGE_WIDTH`, `maxWidth: 100%`, `aspectRatio: PAGE_WIDTH/PAGE_HEIGHT`
+
+**Why no explicit height?** When both `width` and `height` are set, CSS ignores `aspectRatio`. If window shrinks horizontally, width constrains but height stays fixed, breaking the aspect ratio. The SVG letterboxes, and `getBoundingClientRect()` returns wrong dimensions for cursor position calculation.
+
+**Fix:** Let `aspectRatio` derive height from width. Container always maintains correct aspect ratio, SVG fills exactly, cursor detection works at any window size.

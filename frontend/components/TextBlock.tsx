@@ -49,6 +49,15 @@ export default function TextBlockComponent({
     }
   }, [block.content, isEditing]);
 
+  // Auto-size textarea to fit content
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      const textarea = textareaRef.current;
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.max(40, textarea.scrollHeight)}px`;
+    }
+  }, [isEditing, block.content]);
+
   // Capture size when editing ends
   const captureSize = useCallback(() => {
     const textarea = textareaRef.current;
@@ -232,7 +241,7 @@ export default function TextBlockComponent({
           style={{
             cursor: 'text',
             width: Math.max(100, scaledDimensions.width),
-            height: Math.max(40, scaledDimensions.height),
+            minHeight: Math.max(40, scaledDimensions.height),
           }}
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}

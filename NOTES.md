@@ -30,6 +30,11 @@
 
 ## TODO
 
+### Phase 2.5 - Text Block Defaults
+- [ ] Full-width text blocks by default (with margins, e.g., 5% on each side)
+- [ ] Settings panel for default text block width/margins
+- [ ] Users can still manually resize individual blocks
+
 ### Phase 3 - Persistence
 - [ ] Redis/Postgres integration for CRDT snapshots
 - [ ] Load document state on reconnect
