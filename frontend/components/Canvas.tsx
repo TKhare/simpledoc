@@ -126,9 +126,9 @@ export default function Canvas({ provider, color, strokeWidth }: CanvasProps) {
     const blockId = generateId();
     const newBlock: TextBlock = {
       id: blockId,
-      x,
+      x: PAGE_WIDTH * 0.05,
       y,
-      width: 200,
+      width: PAGE_WIDTH * 0.9,
       height: 40,
       content: '',
     };
