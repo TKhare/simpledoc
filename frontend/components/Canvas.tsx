@@ -22,6 +22,7 @@ export default function Canvas({ provider, color, strokeWidth }: CanvasProps) {
   const [textBlocks, setTextBlocks] = useState<TextBlock[]>([]);
   const [currentStroke, setCurrentStroke] = useState<Point[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [newlyCreatedBlockId, setNewlyCreatedBlockId] = useState<string | null>(null);
 
   // Sync strokes from Yjs
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function Canvas({ provider, color, strokeWidth }: CanvasProps) {
     const updateTextBlocks = () => {
       const blocks: TextBlock[] = [];
       provider.textBlocks.forEach((block) => {
-        blocks.push(block);
+        blocks.push({ ...block });
       });
       setTextBlocks(blocks);
     };
@@ -122,8 +123,9 @@ export default function Canvas({ provider, color, strokeWidth }: CanvasProps) {
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
+    const blockId = generateId();
     const newBlock: TextBlock = {
-      id: generateId(),
+      id: blockId,
       x,
       y,
       width: 200,
@@ -131,7 +133,11 @@ export default function Canvas({ provider, color, strokeWidth }: CanvasProps) {
       content: '',
     };
 
+    setNewlyCreatedBlockId(blockId);
     provider.textBlocks.set(newBlock.id, newBlock);
+
+    // Clear after a short delay so synced blocks don't get auto-focus
+    setTimeout(() => setNewlyCreatedBlockId(null), 100);
   }, [provider.textBlocks]);
 
   // Update text block content
@@ -215,6 +221,7 @@ export default function Canvas({ provider, color, strokeWidth }: CanvasProps) {
           block={block}
           pageWidth={PAGE_WIDTH}
           pageHeight={PAGE_HEIGHT}
+          autoFocus={block.id === newlyCreatedBlockId}
           onChange={(content) => handleTextBlockChange(block.id, content)}
           onMove={(x, y) => handleTextBlockMove(block.id, x, y)}
           onResize={(w, h) => handleTextBlockResize(block.id, w, h)}

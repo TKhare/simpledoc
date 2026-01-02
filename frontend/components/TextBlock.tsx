@@ -9,6 +9,7 @@ interface TextBlockProps {
   block: TextBlock;
   pageWidth: number;
   pageHeight: number;
+  autoFocus?: boolean;
   onChange: (content: string) => void;
   onMove: (x: number, y: number) => void;
   onResize: (width: number, height: number) => void;
@@ -19,6 +20,7 @@ export default function TextBlockComponent({
   block,
   pageWidth,
   pageHeight,
+  autoFocus,
   onChange,
   onMove,
   onResize,
@@ -30,13 +32,22 @@ export default function TextBlockComponent({
   const [isEditing, setIsEditing] = useState(block.content === '');
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const hasMoved = useRef(false); // Track if actual movement happened
+  const userInitiatedEdit = useRef(false); // Track if edit was user-initiated
 
-  // Focus textarea when editing starts
+  // Focus textarea only when user explicitly enters edit mode or locally created
   useEffect(() => {
-    if (isEditing && textareaRef.current) {
+    if (isEditing && textareaRef.current && (userInitiatedEdit.current || autoFocus)) {
       textareaRef.current.focus();
+      userInitiatedEdit.current = false;
     }
-  }, [isEditing]);
+  }, [isEditing, autoFocus]);
+
+  // Exit edit mode if content synced from another device
+  useEffect(() => {
+    if (block.content && isEditing && textareaRef.current !== document.activeElement) {
+      setIsEditing(false);
+    }
+  }, [block.content, isEditing]);
 
   // Capture size when editing ends
   const captureSize = useCallback(() => {
@@ -143,6 +154,7 @@ export default function TextBlockComponent({
     e.stopPropagation();
     // Only enter edit mode if no actual movement happened (it was a click, not a drag)
     if (!hasMoved.current) {
+      userInitiatedEdit.current = true;
       setIsEditing(true);
     }
   }, []);
